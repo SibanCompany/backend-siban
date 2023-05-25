@@ -1,14 +1,17 @@
 import 'dotenv/config'
+
 import express from "express"
 import cors from "cors"
 import morgan from "morgan"
-import {
-  DataSource,
-  DataSourceOptions
-} from "typeorm"
+import { DataSource, DataSourceOptions } from "typeorm"
+
+import { ServiceHandler } from "./api/services"
+import { ControllerHandler } from "./api/controllers"
 
 export default class App {
   private app: express.Application = express()
+  private controllerHandler!: ControllerHandler
+  private serviceHandler!: ServiceHandler
   private _database!: DataSource
 
   async getDBConnection() {
@@ -21,7 +24,7 @@ export default class App {
     ] = [
       process.env.HOST,
       process.env.DB_PORT!,
-      process.env.DB_USER,
+      process.env.DB_USERNAME,
       process.env.DB_PASSWORD,
       process.env.DB_NAME,
     ]
@@ -37,12 +40,17 @@ export default class App {
 
     return new DataSource(connectOption)
   }
-  
+
   async createApp() {
+    this._database = await this.getDBConnection()
+    this.serviceHandler = new ServiceHandler(this._database)
+    this.controllerHandler = new ControllerHandler(this.serviceHandler)
+
     this.app.use(cors())
     this.app.use(morgan("dev"))
     this.app.use(express.json())
-    
+    this.app.use(this.controllerHandler.createRoutes())
+
     return this.app
   } 
 }
