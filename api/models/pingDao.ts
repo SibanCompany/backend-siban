@@ -4,7 +4,7 @@ export class Ping {
   constructor( private pong: string ) { }
 }
 
-export class PingDao {
+export default class PingDao {
   constructor(db: DataSource) { }
 
   async ping() {
