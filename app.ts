@@ -38,19 +38,22 @@ export default class App {
       database : DB_NAME
     } as DataSourceOptions
 
-    return new DataSource(connectOption)
+    this._database = new DataSource(connectOption)
+
+    return await this._database.initialize()
   }
 
   async createApp() {
-    this._database = await this.getDBConnection()
+    await this.getDBConnection()
+
     this.serviceHandler = new ServiceHandler(this._database)
     this.controllerHandler = new ControllerHandler(this.serviceHandler)
 
-    this.app.use(cors())
     this.app.use(morgan("dev"))
+    this.app.use(cors())
     this.app.use(express.json())
     this.app.use(this.controllerHandler.createRoutes())
-
+    
     return this.app
   } 
 }

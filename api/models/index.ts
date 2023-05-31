@@ -1,5 +1,9 @@
-import PingDao from "./pingDao"
+import PingDao from "./ping-dao"
+import BoardDao from "./board-dao"
+import AuthDao from "./auth-dao"
 
 export {
-  PingDao
+  PingDao,
+  BoardDao,
+  AuthDao
 }
