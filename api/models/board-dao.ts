@@ -7,7 +7,6 @@ export class AllBoards {
   title: string
   boardType: BoardType
   createdAt: Date
-  deletedAt: Date
   updatedAt: Date
   user: User
   
@@ -17,7 +16,6 @@ export class AllBoards {
     this.boardType = model["board_type"]
     this.createdAt = model["created_at"]
     this.updatedAt = model["deleted_at"]
-    this.deletedAt = model["updated_at"]
     this.user = model["user"]
   }
 }
@@ -44,7 +42,6 @@ export default class BoardDao {
         bt.name as board_type,
         b.created_at,
         b.updated_at,
-        b.deleted_at,
         JSON_OBJECT(
           "id", u.id,
           "name", u.name,
@@ -53,7 +50,7 @@ export default class BoardDao {
       FROM boards b
       INNER JOIN users u ON b.user_id = u.id
       INNER JOIN board_types bt ON bt.id = b.board_type_id
-      WHERE b.board_type_id = ?
+      WHERE b.board_type_id = ? AND b.deleted_at IS NULL
       GROUP BY b.id
       ORDER BY b.id;
     `, [ boardTypeId ])
@@ -148,7 +145,6 @@ export default class BoardDao {
 
       return await queryRunner.commitTransaction()
     } catch(err: any) {
-      // console.log("Failed to create post :: ", err)
       await queryRunner.rollbackTransaction()
       throw new Error(err.message)
     } finally {
@@ -169,7 +165,7 @@ export default class BoardDao {
   }
   
   async deletePost(postId: number, userId: number) {
-    return await this.db.query(`
+    const result = await this.db.query(`
       UPDATE
         boards
       SET
@@ -177,5 +173,9 @@ export default class BoardDao {
       WHERE
         id = ? AND user_id = ?
     `, [postId, userId])
+    
+    if ( !result.affectedRows ) throw new Error("Invalid Post")
+
+    return result
   }
 }
