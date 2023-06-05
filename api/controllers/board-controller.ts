@@ -38,6 +38,8 @@ export default class BoardController {
       const { boardType } = req.query
       const data:CreateRequestBody = req.body
 
+      if ( !data.title || !data.content ) throw new Error("Check your title or content")
+      
       const isEmailValidated = await this.authService.validateEmail(data.email)
       const isPasswordValidated = await this.authService.validatePassword(data.password)
       if ( !isEmailValidated ) throw new Error("Invalid Email Format")
@@ -45,7 +47,7 @@ export default class BoardController {
         
       await this.boardService.createPost(boardType as string, data)
       
-      return res.status(201).json({ message: "Created Post" })
+      return res.status(201).json({ message: "Created" })
     } catch(err: any) {
       return res.status(400).json({ message : err.message })
     }
