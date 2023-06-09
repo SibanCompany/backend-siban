@@ -1,4 +1,4 @@
-import express, { Request, Response, Router,  } from "express"
+import express, { Request, Response, Router } from "express"
 
 import { BoardService, AuthService } from "api/services"
 import {
