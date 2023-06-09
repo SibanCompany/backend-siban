@@ -25,6 +25,7 @@ interface CreateRequestBody {
   name: string,
   email: string,
   password: string,
+  hashedPassword?: string,
   title: string,
   content: string
 }

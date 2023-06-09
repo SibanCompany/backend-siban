@@ -31,7 +31,7 @@ export default class BoardService {
   
   async createPost(boardType: string, data: CreateRequestBody) {
     const hashedPassword = await bcrypt.hash(data.password, 10)
-    data.password = hashedPassword
+    data.hashedPassword = hashedPassword
 
     return await this.boardDao.createPost(boardType, data)
   }

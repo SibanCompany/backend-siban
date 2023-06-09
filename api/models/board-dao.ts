@@ -1,4 +1,5 @@
 import { DataSource } from "typeorm"
+import bcrpyt from "bcrypt"
 
 import { BoardType, CreateRequestBody, User } from "./type"
 
@@ -52,7 +53,7 @@ export default class BoardDao {
       INNER JOIN board_types bt ON bt.id = b.board_type_id
       WHERE b.board_type_id = ? AND b.deleted_at IS NULL
       GROUP BY b.id
-      ORDER BY b.id;
+      ORDER BY b.created_at DESC;
     `, [ boardTypeId ])
 
     return result.length > 0
@@ -94,7 +95,7 @@ export default class BoardDao {
   }
   
   async createPost(boardType: string, data: CreateRequestBody) {
-    const { name, email, password, title, content } = data
+    const { name, email, password, title, content, hashedPassword } = data
 
     const boardTypeId: number = BoardType.id(boardType)
 
@@ -106,12 +107,15 @@ export default class BoardDao {
       const userTypeId:number  = 2
 
       const [res] = await queryRunner.query(`
-        SELECT EXISTS (
-          SELECT id FROM users WHERE email = ?
-        ) as user
+        SELECT
+          id,
+          email,
+          password
+        FROM users WHERE email = ?
       `, [ email ])
 
-      if ( !!parseInt(res.user) ) throw new Error("이미 존재하는 이메일 정보입니다. 비밀번호를 확인해주세요.")      
+      const isPasswordCheck = await bcrpyt.compare(password, res.password.toString())
+      if ( !isPasswordCheck ) throw new Error("이미 존재하는 이메일 정보입니다. 비밀번호를 확인해주세요.")      
 
       const createdUser = await queryRunner.query(`
         INSERT INTO users (
@@ -125,7 +129,7 @@ export default class BoardDao {
           ?,
           ?
         )
-      `, [ name, email, password, userTypeId])
+      `, [ name, email, hashedPassword, userTypeId])
 
       const userId: number = createdUser.insertId
 
