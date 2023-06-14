@@ -7,6 +7,11 @@ import {
   DeleteRequestBody  
 } from "../models/type"
 
+interface GetPostsRequest extends Request {
+  query: {
+    boardType: string
+  }
+}
 
 export default class BoardController {
   constructor(
@@ -14,26 +19,26 @@ export default class BoardController {
     private authService: AuthService
   ) { }
 
-  async getPosts(req: Request, res: Response) {
+  async getPosts(req: GetPostsRequest, res: Response) {
     const { boardType } = req.query    
     
-    const result = await this.boardService.getPosts(boardType as string)
+    const result = await this.boardService.getPosts(boardType)
     return res.status(200).json({ data: result })
   }
 
-  async getPostById(req: Request, res: Response) {
+  async getPostById(req: GetPostsRequest, res: Response) {
     try {
       const { boardType } = req.query
       const { postId } = req.params
   
-      const result = await this.boardService.getPostById(boardType as string, parseInt(postId))
+      const result = await this.boardService.getPostById(boardType, parseInt(postId))
       return res.status(200).json({ data: result })
     } catch(err: any) {
       return res.status(400).json({ message: err.message })
     }
   }
 
-  async createPost(req: Request, res: Response) {
+  async createPost(req: GetPostsRequest, res: Response) {
     try {
       const { boardType } = req.query
       const data:CreateRequestBody = req.body
@@ -45,7 +50,7 @@ export default class BoardController {
       if ( !isEmailValidated ) throw new Error("Invalid Email Format")
       if ( !isPasswordValidated ) throw new Error("Invalid Password Format")
         
-      await this.boardService.createPost(boardType as string, data)
+      await this.boardService.createPost(boardType, data)
       
       return res.status(201).json({ message: "Created" })
     } catch(err: any) {
@@ -106,9 +111,9 @@ export default class BoardController {
   createEndpoints() {
     const router: Router = express.Router()
 
-    router.get("/", (req: Request, res: Response) => this.getPosts(req, res))
-    router.get("/:postId", (req: Request, res: Response) => this.getPostById(req, res))
-    router.post("/", (req: Request, res: Response) => this.createPost(req, res))
+    router.get("/", (req: GetPostsRequest, res: Response) => this.getPosts(req, res))
+    router.get("/:postId", (req: GetPostsRequest, res: Response) => this.getPostById(req, res))
+    router.post("/", (req: GetPostsRequest, res: Response) => this.createPost(req, res))
     router.patch("/:postId", (req: Request, res: Response) => this.updatePost(req, res))
     router.delete("/:postId", (req: Request, res: Response) => this.deletePost(req, res))
 
