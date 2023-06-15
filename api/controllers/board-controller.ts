@@ -9,7 +9,7 @@ import {
 
 interface GetPostsRequest extends Request {
   query: {
-    boardType: string
+    boardType?: string
   }
 }
 
@@ -31,7 +31,7 @@ export default class BoardController {
       const { boardType } = req.query
       const { postId } = req.params
   
-      const result = await this.boardService.getPostById(boardType, parseInt(postId))
+      const result = await this.boardService.getPostById(parseInt(postId), boardType)
       return res.status(200).json({ data: result })
     } catch(err: any) {
       return res.status(400).json({ message: err.message })
@@ -50,7 +50,7 @@ export default class BoardController {
       if ( !isEmailValidated ) throw new Error("Invalid Email Format")
       if ( !isPasswordValidated ) throw new Error("Invalid Password Format")
         
-      await this.boardService.createPost(boardType, data)
+      await this.boardService.createPost(data, boardType)
       
       return res.status(201).json({ message: "Created" })
     } catch(err: any) {
