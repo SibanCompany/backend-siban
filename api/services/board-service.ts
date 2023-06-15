@@ -17,23 +17,23 @@ export default class BoardService {
     return maskedEmail
   }
   
-  async getPosts(boardType: string) {
+  async getPosts(boardType?: string) {
     return this.boardDao.getPosts(boardType)
   }
 
-  async getPostById(boardType: string, postId: number) {
-    const response = await this.boardDao.getPostById(boardType, postId)
+  async getPostById(postId: number, boardType?: string) {
+    const response = await this.boardDao.getPostById(postId, boardType)
     const { email } = response.user
       
     response.user.email = await this.maskEmail(email)
     return response
   }
   
-  async createPost(boardType: string, data: CreateRequestBody) {
+  async createPost(data: CreateRequestBody, boardType?: string) {
     const hashedPassword = await bcrypt.hash(data.password, 10)
     data.hashedPassword = hashedPassword
 
-    return await this.boardDao.createPost(boardType, data)
+    return await this.boardDao.createPost(data, boardType)
   }
 
   async updatePost(postId: number, userId: number, title: string, content: string) {

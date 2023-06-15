@@ -33,7 +33,7 @@ export class Board extends AllBoards {
 export default class BoardDao {
   constructor(private db: DataSource) { }
 
-  async getPosts(boardType: string): Promise<AllBoards> {
+  async getPosts(boardType?: string): Promise<AllBoards> {
     const boardTypeId: number = BoardType.id(boardType)
 
     const result = await this.db.query(`
@@ -61,7 +61,7 @@ export default class BoardDao {
           : []
   }
 
-  async getPostById(boardType: string, postId: number): Promise<Board> {
+  async getPostById(postId: number, boardType?: string): Promise<Board> {
     try {
       const boardTypeId: number = BoardType.id(boardType)
 
@@ -94,7 +94,7 @@ export default class BoardDao {
     }
   }
   
-  async createPost(boardType: string, data: CreateRequestBody) {
+  async createPost(data: CreateRequestBody, boardType?: string) {
     const { name, email, password, title, content, hashedPassword } = data
 
     const boardTypeId: number = BoardType.id(boardType)
