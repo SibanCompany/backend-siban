@@ -5,7 +5,7 @@
   "main": "app.ts",
   "scripts": {
     "dev": "nodemon server.ts",
-    "test": "jest --verbose --runInband --watchAll=false",
+    "test": "DOTENV_CONFIG_PATH=.env.test jest --verbose --runInBand --watchAll=false",
     "compile": "tsc"
   },
   "repository": {
@@ -29,14 +29,15 @@
   "devDependencies": {
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.15",
+    "@types/jest": "^29.5.2",
     "@types/jsonwebtoken": "^9.0.1",
     "@types/morgan": "^1.9.4",
     "@types/node": "^18.11.18",
     "@types/supertest": "^2.0.12",
-    "jest": "^29.0.3",
+    "jest": "^29.5.0",
     "nodemon": "^2.0.19",
-    "supertest": "^6.2.4",
-    "ts-jest": "^29.0.5",
+    "supertest": "^6.3.3",
+    "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
   }

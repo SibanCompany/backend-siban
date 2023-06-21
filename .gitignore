@@ -1,5 +1,3 @@
-.env
-
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,vim,zsh,macos,node
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,vim,zsh,macos,node
 
@@ -117,6 +115,7 @@ web_modules/
 .env.test.local
 .env.production.local
 .env.local
+.env.test
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
