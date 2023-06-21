@@ -55,5 +55,9 @@ export default class App {
     this.app.use(this.controllerHandler.createRoutes())
     
     return this.app
-  } 
+  }
+
+  async close() {
+    await this._database.destroy()
+  }
 }
