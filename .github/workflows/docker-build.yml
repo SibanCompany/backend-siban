@@ -1,0 +1,68 @@
+name: Sibancompany Backend CI/CD
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.x
+      
+      - name: Node Packages and Dependencies
+        run: |
+        echo "Installing Dependencies..."
+        npm ci
+
+  deploy_staging:
+    runs-on: ubuntu-20.04
+    needs: build
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'pull_request'
+
+    steps:
+      - name: Deploy to Staging
+        run: |
+          echo "Deploying to Staging Server..."
+
+      - name: API Testing
+        run: |
+          echo "Running tests..."
+          npm test
+
+  deploy_production:
+    runs-on: ubuntu-20.04
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'pull_request'
+
+    steps:
+      - name: API Testing
+        run: |
+          echo "Running tests..."
+          npm test
+
+      - name: Docker Image Build and Push
+        run: |
+        echo "Building and pushing docker image to deploy..."
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker image prune -af
+          docker build --platform linux/amd64 -t sangwoong03/siban:${GITHUB_SHA::7} .
+          docker push sangwoong03/siban:${GITHUB_SHA::7}
+
+      - name: SSH into EC2 and Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AMAZON_EC2_HOST }}
+          username: ${{ secrets.AMAZON_EC2_USERNAME }}
+          key: ${{ secrets.AMAZON_EC2_PRIVATE_KEY }}
+          script: |
+            echo "Deploying to production in Amazon EC2 Instance with Docker Iamge..."
+            ../../sciprts/deploy.sh
