@@ -1,0 +1,22 @@
+name: Sibancompany Backend Deploy CI/CD
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Deploy to Staging
+        run: |
+          echo "Deploying to staging..."
+          cat ../scripts/deploy.sh

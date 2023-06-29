@@ -39,7 +39,7 @@ export default class App {
     } as DataSourceOptions
 
     this._database = new DataSource(connectOption)
-
+    
     return await this._database.initialize()
   }
 
