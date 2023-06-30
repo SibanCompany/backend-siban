@@ -3,8 +3,8 @@ name: Sibancompany Backend Test CI/CD
 on:
   push:
     branches:
-      - main
-      - develop
+      # - main
+      # - develop
       - hotfix/*
       - release/*
       - feature/*
@@ -40,3 +40,41 @@ jobs:
         run: |
           echo "Running Unit Test..."
           cat .env.test
+
+  # staging_deploy:
+  #   needs: build
+  #   runs-on: ubuntu-20.04
+  #   if: ${{ github.event.pull_request.merged && startsWith(github.event.pull_request.base.ref, 'develop') }}
+
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
+
+  #     - name: Test API
+  #       run: |
+  #         echo "Running Unit Test..."
+  #         cat .env.test
+        
+  #     - name: Deploy to Staging
+  #       run: |
+  #         echo "Deploying to staging..."
+  #         cat ../../scripts/deploy.sh
+
+  # production_deploy:
+  #   needs: build
+  #   runs-on: ubuntu-20.04
+  #   if: ${{ github.event.pull_request.merged && startsWith(github.event.pull_request.base.ref, 'main') }}
+
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
+
+  #     - name: Test API
+  #       run: |
+  #         echo "Running Unit Test..."
+  #         cat .env.test
+        
+  #     - name: Deploy to Staging
+  #       run: |
+  #         echo "Deploying to staging..."
+  #         cat ../../scripts/deploy.sh

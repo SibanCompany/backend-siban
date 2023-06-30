@@ -1,10 +1,9 @@
 name: Sibancompany Backend Deploy CI/CD
 
 on:
-  push:
+  pull_request:
     branches:
       - develop
-  pull_request:
     types:
       - closed
 
@@ -19,4 +18,4 @@ jobs:
       - name: Deploy to Staging
         run: |
           echo "Deploying to staging..."
-          cat ../scripts/deploy.sh
+          cat ../../scripts/deploy.sh
