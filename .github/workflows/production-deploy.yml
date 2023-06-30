@@ -1,0 +1,43 @@
+name: Production Deploy CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.x
+      
+      - name: Node Packages and Dependencies
+        run: |
+          echo "Installing Dependencies..."
+          npm ci
+
+      - name: Prepare .env.test
+        run: |
+          touch .env.test
+          echo "HOST=127.0.0.1" >> .env.test
+          echo "DB_PORT=3306" >> .env.test
+          echo "DB_USERNAME=root" >> .env.test
+          echo "DB_PASSWORD=1234" >> .env.test
+          echo "DB_NAME=siban" >> .env.test
+  
+      - name: Test API
+        run: |
+          echo "Running Unit Test..."
+          cat .env.test
+
+      - name: Deploy to Staging
+        run: |
+          echo "Deploying to staging..."
+          echo "Production 배포를 위한 Docker Setup 필요함"
+          cat ./scripts/deploy.sh

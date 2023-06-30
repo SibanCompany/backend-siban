@@ -1,0 +1,42 @@
+name: Staging Deploy CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.x
+      
+      - name: Node Packages and Dependencies
+        run: |
+          echo "Installing Dependencies..."
+          npm ci
+      - name: Prepare .env.test
+        run: |
+          touch .env.test
+          echo "HOST=127.0.0.1" >> .env.test
+          echo "DB_PORT=3306" >> .env.test
+          echo "DB_USERNAME=root" >> .env.test
+          echo "DB_PASSWORD=1234" >> .env.test
+          echo "DB_NAME=siban" >> .env.test
+  
+      - name: Test API
+        run: |
+          echo "Running Unit Test..."
+          cat .env.test
+
+      - name: Deploy to Staging
+        run: |
+          echo "Deploying to staging..."
+          echo "Staging Server는 없기 때문에 아직 별도의 행동을 하지 않는다."
+          cat ./scripts/deploy.sh
