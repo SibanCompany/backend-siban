@@ -1,0 +1,92 @@
+name: Siban Backend API CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - hotfix/*
+      - release/*
+      - feature/*
+      - fix/*
+
+jobs:
+  local_build_test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: "npm"
+
+      - name: Setup Environmental
+        run: |
+          echo "HOST=localhost" >> .env.test
+          echo "DB_PORT=7777" >> .env.test
+          echo "DB_USERNAME=siban" >> .env.test
+          echo "DB_PASSWORD=test" >> .env.test
+          echo "DB_NAME=siban" >> .env.test
+          sudo service mysql stop
+          
+      # - name: Setup SSH
+      #   uses: MrSquaare/ssh-setup-action@v1
+      #   with:
+      #     host: github.com
+      #     private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Setup MySQL
+        uses: mirromutth/mysql-action@v1.1
+        with:
+          host port: 7777
+          container port: 3306
+          mysql version: '8.0.34'
+          mysql database: siban
+          mysql user: 'siban'
+          mysql password: 'test'
+          
+      - name: Build and Test
+        run: |
+          npm ci
+          npm run test
+
+  # deploy_production:
+  #   needs: local_build_test
+  #   if: ${{ github.ref == 'refs/heads/main' }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Get GitHub Actions IP
+  #       id: ip
+  #       uses: haythem/public-ip@v1.2
+
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ap-northeast-2
+
+  #     - name: Add Github Actions IP to Security group
+  #       run: |
+  #         aws ec2 authorize-security-group-ingress \
+  #         --group-id ${{ secrets.PROD_AWS_SG_ID }} \
+  #         --protocol tcp --port 22 \
+  #         --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+  #     - name: EC2 Production Server Deploy
+  #       uses: appleboy/ssh-action@master
+  #       with:
+  #         key: ${{ secrets.PROD_AWS_SSH_KEY }}
+  #         host: ${{ secrets.PROD_AWS_HOST }}
+  #         username: ubuntu
+  #         script: |
+  #           # asdfasdf
+
+  #     - name: Remove Github Actions IP From Security Group
+  #       run: |
+  #         aws ec2 revoke-security-group-ingress \
+  #         --group-id ${{ secrets.PROD_AWS_SG_ID }} \
+  #         --protocol tcp --port 22 \
+  #         --cidr ${{ steps.ip.outputs.ipv4 }}/32
